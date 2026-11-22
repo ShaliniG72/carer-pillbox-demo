@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<title>Carer Pillbox Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday and calm: an interviewer handing a phone to a family carer
+   IDEA the 7-day morning/evening pill organiser on the kitchen counter
+   PICTURE this week's pillbox, each compartment holding its doses coloured taken, not confirmed or still to take
+   COLOUR white ground, pharmacy blue band and marks, pale lid blue support, amber for "not confirmed", a yellow demo strip
+   TYPE Atkinson Hyperlegible Next for display and text, made for low-vision reading
+   LAYOUT demo strip, title with role switch, interview bar, blue pillbox band, then today's doses with hanging times; phone keeps that order */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#0b1020);--ink:light-dark(#0f172a,#eef2ff);--mute:light-dark(#4b5568,#a8b3cf);--blue:light-dark(#1d4ed8,#6d98ff);--band:light-dark(#1d4ed8,#15245e);--lid:light-dark(#e4ebff,#24366f);--amber:light-dark(#a15c00,#ffb547);--ambg:light-dark(#fff4e0,#38270a);--line:light-dark(#dde3ef,#263050);--card:light-dark(#f5f7fd,#111a35);--demo:light-dark(#ffd84a,#ffd84a);--onblue:light-dark(#fff,#0b1020);--onamber:light-dark(#fff,#1a1000)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(20px,3.4vw,44px) max(5vw,16px)}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-size:clamp(32px,5vw,46px);line-height:1.05;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:22px;line-height:1.2;margin:0 0 12px}
+button,select{font:inherit;color:inherit}
+button{min-height:44px;padding:8px 16px;border-radius:10px;border:2px solid var(--blue);background:transparent;color:var(--blue);font-weight:600;cursor:pointer}
+button.pri{background:var(--blue);color:var(--onblue)}
+button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.demo{position:sticky;top:0;z-index:20;background:var(--demo);color:#1a1400;padding:8px max(5vw,16px);display:flex;flex-wrap:wrap;gap:2px 14px;align-items:baseline;font-size:15px}
+.demo b{font-size:16px}
+.top{padding-bottom:12px}
+.hrow{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+.role{display:flex;border:2px solid var(--blue);border-radius:12px;overflow:hidden}
+.role button{border:0;border-radius:0;min-width:8.5em}
+.role button[aria-pressed=true]{background:var(--blue);color:var(--onblue)}
+.session{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-top:18px;padding:12px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+.session label{font-weight:600}
+.session select{min-height:44px;font-size:16px;padding:6px 10px;border-radius:10px;border:2px solid var(--line);background:var(--bg)}
+.session .stamp{color:var(--mute);font-size:15px;flex:1 1 14em}
+.tabs{display:flex;gap:4px;margin-top:18px;border-bottom:2px solid var(--line);overflow-x:auto}
+.tabs a{flex:none;padding:10px 16px;color:var(--mute);text-decoration:none;font-weight:600;border-bottom:4px solid transparent;margin-bottom:-2px}
+.tabs a[aria-current=page]{color:var(--ink);border-color:var(--blue)}
+.box{background:var(--band);color:#fff}
+.boxhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:8px 24px;margin-bottom:16px}
+.boxhead h2{margin:0;color:#fff}
+.big{margin:0;font-size:17px}.big b{font-size:clamp(34px,5vw,48px);line-height:1;margin-right:6px}
+.pillbox{display:grid;grid-template-columns:3.2em repeat(7,minmax(0,1fr));gap:8px}
+.pillbox .dh{text-align:center;font-size:15px;line-height:1.2;padding-bottom:2px}
+.pillbox .dh b{display:block;font-size:17px}
+.pillbox .dh.now b{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:3px}
+.pillbox .rh{align-self:center;font-size:14px;font-weight:600;opacity:.85}
+.cell{min-height:78px;border-radius:12px;background:var(--lid);color:var(--ink);padding:8px 6px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;box-shadow:inset 0 -6px 0 rgba(15,23,42,.08),inset 0 2px 0 rgba(255,255,255,.7)}
+.cell.fut{background:rgba(255,255,255,.14);color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.cell.nc{background:var(--ambg);box-shadow:inset 0 0 0 3px var(--amber)}
+.cell.none{background:rgba(255,255,255,.07);box-shadow:none}
+.caps{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.cap{width:24px;height:11px;border-radius:6px;display:block;background:linear-gradient(90deg,var(--blue) 50%,#8fb0ff 50%)}
+.cap.unconfirmed{background:var(--amber)}
+.cap.skipped{background:#94a3b8}
+.cap.due,.cap.upcoming{background:transparent;border:2px solid var(--blue)}
+.cap.due{animation:pulse 1.6s ease-in-out infinite}
+.cap.future{background:transparent;border:2px dashed rgba(255,255,255,.6)}
+.cell .n{font-size:13px;font-weight:600}
+@keyframes pulse{50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.cap.due{animation:none}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:14px 0 0;font-size:14px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend .cap.upcoming{border-color:#fff}
+.alert{border-radius:14px;padding:14px 16px;margin-bottom:18px;background:var(--ambg);border:2px solid var(--amber)}
+.alert b{color:var(--amber)}
+.alert p{margin:4px 0}
+.alert ul{margin:8px 0;padding:0;list-style:none;display:grid;gap:8px}
+.alert li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.alert li small{color:var(--mute);font-size:14px;flex-basis:100%}
+.okay{border-radius:14px;padding:12px 16px;margin-bottom:18px;background:var(--card);border:1px solid var(--line)}
+.todayrow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.todayrow h2{margin:0}
+.sim{border-style:dashed}
+.sched{list-style:none;margin:12px 0 0;padding:0}
+.dose{display:grid;grid-template-columns:4.2em minmax(0,1fr) auto;gap:6px 16px;align-items:center;padding:16px 0;border-top:1px solid var(--line)}
+.dose time{font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dose .what b{font-size:19px}
+.dose .what small{display:block;color:var(--mute);font-size:15px}
+.tag{display:inline-block;margin-left:6px;padding:1px 9px;border-radius:99px;font-size:14px;font-weight:600;background:var(--card);border:1px solid var(--line);white-space:nowrap}
+.st-unconfirmed .tag{background:var(--amber);border-color:var(--amber);color:var(--onamber)}
+.st-due .tag{background:var(--blue);border-color:var(--blue);color:var(--onblue)}
+.st-taken time,.st-skipped time{color:var(--mute)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.med{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.med h3{margin:0;font-size:20px}
+.med p{margin:0;color:var(--mute);font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{padding:2px 10px;border-radius:8px;background:var(--lid);font-weight:600;font-variant-numeric:tabular-nums}
+.meter{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--blue)}
+.low .meter i{background:var(--amber)}
+.low .left{color:var(--amber);font-weight:600}
+.fine{font-size:14px;color:var(--mute);margin:18px 0 0;max-width:70ch}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:14px;color:var(--mute);font-weight:600}
+td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+.hbar{height:8px;border-radius:4px;background:var(--line);margin-top:6px;overflow:hidden;max-width:140px}
+.hbar i{display:block;height:100%;background:var(--blue)}
+.hbar.bad i{background:var(--amber)}
+.modal{position:fixed;inset:0;z-index:40;background:rgba(5,10,25,.72);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.phone{width:min(100%,360px);border-radius:40px;padding:14px;background:#0b0b0f;box-shadow:0 0 0 2px #2b2b33}
+.screen{border-radius:30px;min-height:560px;padding:18px 14px 22px;color:#fff;background:linear-gradient(170deg,#25335f,#5a3d6e 60%,#a45d5d);display:flex;flex-direction:column;gap:10px}
+.simtag{align-self:center;background:var(--demo);color:#1a1400;font-weight:800;font-size:14px;padding:4px 12px;border-radius:99px}
+.clock{text-align:center;font-size:64px;font-weight:300;line-height:1;margin-top:8px;font-variant-numeric:tabular-nums}
+.cdate{text-align:center;font-size:16px;margin-bottom:14px}
+.notif{background:rgba(255,255,255,.86);color:#111;border-radius:18px;padding:12px 14px}
+.notif .app{display:flex;justify-content:space-between;font-size:13px;color:#444;margin-bottom:4px}
+.notif b{display:block;font-size:16px}
+.notif p{margin:2px 0 0;font-size:15px;line-height:1.35}
+.nacts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.nacts button{background:rgba(255,255,255,.86);border:0;color:#111;border-radius:14px}
+.simnote{font-size:14px;text-align:center;margin:auto 0 0}
+.closer{width:100%;margin-top:12px;background:#fff;color:#111;border-color:#fff}
+#toast{position:fixed;left:50%;bottom:20px;z-index:50;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;max-width:calc(100% - 32px);opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.on{opacity:1}
+[hidden]{display:none!important}
+@media(max-width:600px){.pillbox{grid-template-columns:2.4em repeat(7,minmax(0,1fr));gap:5px}.cell{min-height:64px;padding:6px 2px}.cap{width:16px;height:9px}.pillbox .dh{font-size:12px}.pillbox .dh b{font-size:15px}.dose{grid-template-columns:3.6em minmax(0,1fr)}.dose time{font-size:24px}.dose .acts{grid-column:1/-1;justify-content:flex-start}.role button{min-width:0}table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-block:8px;border-bottom:1px solid var(--line)}.stack td{border:0;padding:3px 0;display:flex;gap:12px}.stack td::before{content:attr(data-l);min-width:5.5em;color:var(--mute);font-size:13px}}
+</style>
+</head>
+<body>
+<div class="demo" role="note" id="demo-label"><b>Demo · sample data only</b><span>Fictional household and made-up medicine names. Nothing you tap leaves this phone.</span></div>
+<header class="band top">
+  <div class="wrap">
+    <div class="hrow">
+      <h1>Margaret's medicines</h1>
+      <div class="role" role="group" aria-label="Whose phone this is pretending to be">
+        <button id="r-person" aria-pressed="false">I'm Margaret</button>
+        <button id="r-carer" aria-pressed="true">I'm the carer</button>
+      </div>
+    </div>
+    <div class="session">
+      <label for="slot">Interview</label>
+      <select id="slot"></select>
+      <span class="stamp" id="stamp"></span>
+      <button id="reset">Reset this sample week</button>
+    </div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#today" data-v="today">Today</a>
+      <a href="#meds" data-v="meds">Medicines</a>
+      <a href="#history" data-v="history">History</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section id="v-today">
+    <div class="band box">
+      <div class="wrap">
+        <div class="boxhead">
+          <h2>Pillbox, last 7 days</h2>
+          <p class="big"><b id="adh">–</b><span id="adh-l">doses confirmed in the last 7 days</span></p>
+        </div>
+        <div id="pillbox" class="pillbox" aria-label="Pill organiser for the last 7 days"></div>
+        <div class="legend" aria-hidden="true">
+          <span><i class="cap taken"></i>Taken</span>
+          <span><i class="cap unconfirmed"></i>Dose not confirmed</span>
+          <span><i class="cap upcoming"></i>Still to take</span>
+          <span><i class="cap skipped"></i>Skipped</span>
+        </div>
+      </div>
+    </div>
+    <div class="band">
+      <div class="wrap">
+        <div id="alert"></div>
+        <div class="todayrow">
+          <h2 id="today-h">Today</h2>
+          <button class="sim" id="preview">Preview phone alert (simulation)</button>
+        </div>
+        <ol id="list" class="sched"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-meds" class="band" hidden>
+    <div class="wrap">
+      <h2>Medicines and stock</h2>
+      <div id="medlist" class="grid"></div>
+      <p class="fine">These medicines are invented for the demo. In this demo you can't add or edit medicines or names, so no real medical details are entered. Stock goes down as doses are marked taken.</p>
+    </div>
+  </section>
+
+  <section id="v-history" class="band" hidden>
+    <div class="wrap">
+      <h2>Last 7 days</h2>
+      <div class="scroll">
+        <table class="stack"><thead><tr><th>Day</th><th>Taken</th><th>Not confirmed or skipped</th></tr></thead><tbody id="hist"></tbody></table>
+      </div>
+      <p class="fine">"Dose not confirmed" means nobody tapped Taken or Skip within 60 minutes of the scheduled time. It does not mean the dose wasn't taken.</p>
+    </div>
+  </section>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="sim-title" hidden>
+  <div class="phone">
+    <div class="screen">
+      <span class="simtag" id="sim-title">Simulation: proposed phone alert</span>
+      <div class="clock" id="sim-clock">21:00</div>
+      <div class="cdate" id="sim-date"></div>
+      <div class="notif">
+        <div class="app"><span>Carer Pillbox</span><span>now</span></div>
+        <b id="sim-head">Margaret hasn't confirmed a dose</b>
+        <p id="sim-body"></p>
+      </div>
+      <div class="nacts"><button id="sim-call">Call Margaret</button><button id="sim-take">Mark as taken</button></div>
+      <p class="simnote">This is a mock-up. No notification is sent and no call is made.</p>
+    </div>
+    <button class="closer" id="sim-close">Close preview</button>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const dkey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hm=iso=>{const d=new Date(iso);return isNaN(d)?'':pad(d.getHours())+':'+pad(d.getMinutes())};
+const dayLabel=(k,o)=>new Date(k+'T12:00').toLocaleDateString('en-GB',o||{weekday:'long',day:'numeric',month:'long'});
+const stampLabel=iso=>{const d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+' at '+hm(iso)};
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+
+const HH={person:'Margaret',carer:'Dev',grace:60};
+const MEDS=[
+  {id:'calvorin',name:'Calvorin',dose:'5 mg',unit:'tablet',per:1,times:['08:00'],stock:28,refill:7,note:'Sample morning tablet',stockDay:-14},
+  {id:'glimetra',name:'Glimetra',dose:'500 mg',unit:'tablet',per:1,times:['08:00','18:00'],stock:30,refill:7,note:'Sample: take with food',stockDay:-7},
+  {id:'statelix',name:'Statelix',dose:'20 mg',unit:'tablet',per:1,times:['21:00'],stock:8,refill:7,note:'Sample evening tablet',stockDay:-7},
+  {id:'vitamin-d',name:'Vitamin D',dose:'1000 IU',unit:'capsule',per:1,times:['08:00'],stock:90,refill:10,note:'',stockDay:-20}];
+const SLOTS=Array.from({length:10},(_,i)=>'Interview '+(i+1)).concat(['Practice run']);
+const PREFIX='carer-pillbox-demo-v1:';
+const mem={};
+const store={
+  get(k){try{const v=localStorage.getItem(PREFIX+k);if(v!==null)return v}catch(e){}return mem[k]??null},
+  set(k,v){mem[k]=v;try{localStorage.setItem(PREFIX+k,v)}catch(e){}},
+  del(k){delete mem[k];try{localStorage.removeItem(PREFIX+k)}catch(e){}}
+};
+
+let slot=store.get('slot');if(!SLOTS.includes(slot))slot=SLOTS[0];
+let role=store.get('role')==='person'?'person':'carer';
+let S=null;
+
+const key=it=>it.med.id+'_'+it.time.replace(':','');
+const rec=it=>S.days[it.date]?.[key(it)]||null;
+function scheduleFor(date){
+  if(date<S.start)return [];
+  return S.meds.flatMap(m=>m.times.map(t=>({date,time:t,med:m}))).sort((a,b)=>a.time.localeCompare(b.time)||a.med.name.localeCompare(b.med.name));
+}
+function status(it,now){
+  const r=rec(it);if(r)return r.s;
+  const today=dkey(now);
+  if(it.date<today)return 'unconfirmed';
+  if(it.date>today)return 'future';
+  const [h,m]=it.time.split(':').map(Number),due=h*60+m,mins=now.getHours()*60+now.getMinutes();
+  if(mins<due)return 'upcoming';
+  return mins<=due+HH.grace?'due':'unconfirmed';
+}
+const LABEL={taken:'Taken',skipped:'Skipped',unconfirmed:'Dose not confirmed',due:'Due now',upcoming:'Later today',future:'Coming up'};
+function until(it,now){const [h,m]=it.time.split(':').map(Number);const d=h*60+m-(now.getHours()*60+now.getMinutes());return d<60?'in '+d+' min':'in '+Math.floor(d/60)+' h'+(d%60?' '+d%60+' min':'')}
+function stockOf(m){
+  let used=0;
+  for(const k in S.days){const recs=S.days[k];for(const rk in recs){const r=recs[rk];if(r&&r.s==='taken'&&rk.startsWith(m.id+'_')&&r.at>=m.stockAt)used+=m.per}}
+  const left=Math.max(0,m.stock-used),daily=m.per*m.times.length;
+  return {left,days:daily?left/daily:Infinity};
+}
+
+function freshWeek(){
+  const now=new Date();
+  const meds=MEDS.map(m=>({...m,stockAt:addDays(now,m.stockDay).toISOString()}));
+  S={v:1,start:dkey(addDays(now,-6)),created:now.toISOString(),updated:now.toISOString(),meds,days:{}};
+  const gaps={'3_glimetra_1800':'nc','1_statelix_2100':'nc','5_vitamin-d_0800':'skip','2_statelix_2100':'carer'};
+  for(let i=6;i>=0;i--){
+    const k=dkey(addDays(now,-i)),recs={};
+    for(const it of scheduleFor(k)){
+      const kk=key(it),g=gaps[i+'_'+kk];
+      const at=new Date(k+'T'+it.time);at.setMinutes(at.getMinutes()+((i*7+kk.length)%22)+2);
+      if(i===0&&now-at<30*60e3)continue;
+      if(g==='nc')continue;
+      recs[kk]={s:g==='skip'?'skipped':'taken',at:at.toISOString(),by:g==='carer'?HH.carer:HH.person};
+    }
+    S.days[k]=recs;
+  }
+}
+function load(){
+  try{S=JSON.parse(store.get('week:'+slot)||'null')}catch(e){S=null}
+  if(!S||S.v!==1||!Array.isArray(S.meds)){freshWeek();save(false)}
+}
+function save(touch=true){if(touch)S.updated=new Date().toISOString();store.set('week:'+slot,JSON.stringify(S))}
+
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2600)}
+const who=()=>role==='person'?HH.person:HH.carer;
+function record(it,val){
+  const k=key(it);S.days[it.date]={...(S.days[it.date]||{})};
+  if(val)S.days[it.date][k]=val;else delete S.days[it.date][k];
+  save();render();
+}
+function unconfirmedNow(now){
+  const y=dkey(addDays(now,-1));
+  return [...scheduleFor(y),...scheduleFor(dkey(now))].filter(it=>status(it,now)==='unconfirmed');
+}
+function updatedLine(it,now){
+  const r=rec(it);
+  if(r)return `Scheduled ${it.time}. Last updated ${it.date===dkey(now)?'':dayLabel(it.date,{weekday:'short'})+' '}${hm(r.at)} by ${esc(r.by)}.`;
+  return `Scheduled ${it.time}. No update yet.`;
+}
+
+function renderPillbox(now){
+  const today=dkey(now);
+  const days=[6,5,4,3,2,1,0].map(i=>dkey(addDays(now,-i)));
+  let h='<div></div>'+days.map(k=>`<div class="dh${k===today?' now':''}">${dayLabel(k,{weekday:'short'})}<b>${new Date(k+'T12:00').getDate()}</b></div>`).join('');
+  let taken=0,counted=0;
+  for(const half of [['Morning','AM',t=>t<'12:00'],['Evening','PM',t=>t>='12:00']]){
+    h+=`<div class="rh" title="${half[0]}">${half[1]}</div>`;
+    for(const k of days){
+      const items=scheduleFor(k).filter(it=>half[2](it.time)),st=items.map(it=>status(it,now));
+      st.forEach(s=>{if(s==='taken')taken++;if(['taken','unconfirmed','skipped'].includes(s))counted++});
+      const done=st.filter(s=>s==='taken'||s==='skipped').length;
+      const cls=!items.length?'none':k>today?'fut':st.includes('unconfirmed')?'nc':'';
+      const lab=`${dayLabel(k,{weekday:'long'})} ${half[0].toLowerCase()}: `+(items.length?items.map((it,i)=>it.med.name+' '+LABEL[st[i]].toLowerCase()).join(', '):'nothing scheduled');
+      h+=`<div class="cell ${cls}" role="img" aria-label="${esc(lab)}"><span class="caps">${items.map((it,i)=>`<i class="cap ${st[i]}"></i>`).join('')}</span>${items.length?`<span class="n">${done}/${items.length}</span>`:''}</div>`;
+    }
+  }
+  $('#pillbox').innerHTML=h;
+  $('#adh').textContent=counted?Math.round(taken/counted*100)+'%':'–';
+  $('#adh-l').textContent=counted?`${taken} of ${counted} doses confirmed taken in the last 7 days`:'Nothing due yet';
+}
+function renderToday(now){
+  const today=dkey(now),items=scheduleFor(today),y=dkey(addDays(now,-1));
+  $('#today-h').textContent='Today, '+dayLabel(today);
+  const nc=unconfirmedNow(now);
+  const low=S.meds.filter(m=>stockOf(m).days<=m.refill);
+  let a='';
+  if(nc.length){
+    a+=`<p><b>${plural(nc.length,'dose')} not confirmed</b> since yesterday morning. ${role==='carer'?'Worth a call to Margaret.':'If you took it, tap Taken.'}</p><ul>`+
+      nc.map(it=>`<li><span>${esc(it.med.name)} ${esc(it.med.dose)}${it.date===y?', yesterday':''}</span><button data-act="take" data-d="${it.date}" data-m="${it.med.id}" data-t="${it.time}">Mark taken</button><small>${updatedLine(it,now)}</small></li>`).join('')+'</ul>';
+  }
+  if(low.length)a+=low.map(m=>{const s=stockOf(m);return `<p><b>${esc(m.name)} runs out ${s.days<1?'today':'in about '+plural(Math.floor(s.days),'day')}.</b> Order a repeat prescription.</p>`}).join('');
+  $('#alert').innerHTML=a?`<div class="alert" role="status">${a}</div>`:`<div class="okay">All caught up. Every dose so far is confirmed and nothing is running low.</div>`;
+  $('#list').innerHTML=items.map(it=>{
+    const st=status(it,now),r=rec(it),data=`data-d="${it.date}" data-m="${it.med.id}" data-t="${it.time}"`;
+    const tag=st==='upcoming'?until(it,now):LABEL[st];
+    const acts=r?`<button data-act="undo" ${data}>Undo</button>`:`<button class="pri" data-act="take" ${data}>Taken</button><button data-act="skip" ${data}>Skip</button>`;
+    return `<li class="dose st-${st}"><time>${it.time}</time><div class="what"><b>${esc(it.med.name)}</b> ${esc(it.med.dose)}, ${it.med.per} ${it.med.unit}<span class="tag">${tag}</span><small>${updatedLine(it,now)}</small>${it.med.note?`<small>${esc(it.med.note)}</small>`:''}</div><div class="acts">${acts}</div></li>`;
+  }).join('');
+}
+function renderMeds(){
+  $('#medlist').innerHTML=S.meds.map(m=>{
+    const s=stockOf(m),lowc=s.days<=m.refill?' low':'',pct=Math.min(100,s.days/30*100);
+    return `<article class="med${lowc}"><h3>${esc(m.name)} ${esc(m.dose)}</h3><div class="chips">${m.times.map(t=>`<span>${t}</span>`).join('')}</div>${m.note?`<p>${esc(m.note)}</p>`:''}<div class="meter" aria-hidden="true"><i style="width:${pct}%"></i></div><p class="left">${s.left} ${m.unit}${s.left===1?'':'s'} left, about ${plural(Math.floor(s.days),'day')}</p></article>`;
+  }).join('');
+}
+function renderHistory(now){
+  const rows=[];
+  for(let i=0;i<7;i++){
+    const k=dkey(addDays(now,-i)),items=scheduleFor(k);if(!items.length)continue;
+    const st=items.map(it=>status(it,now));
+    const t=st.filter(s=>s==='taken').length,c=st.filter(s=>['taken','unconfirmed','skipped'].includes(s)).length;
+    const bad=items.map((it,j)=>st[j]==='unconfirmed'?`${esc(it.med.name)} ${it.time} not confirmed`:st[j]==='skipped'?`${esc(it.med.name)} ${it.time} skipped`:'').filter(Boolean);
+    rows.push(`<tr><td data-l="Day">${i===0?'Today':i===1?'Yesterday':dayLabel(k,{weekday:'short',day:'numeric',month:'short'})}</td><td class="num" data-l="Taken">${c?t+' of '+c:'Not due yet'}<div class="hbar${t<c?' bad':''}"><i style="width:${c?t/c*100:0}%"></i></div></td><td data-l="Other">${bad.join(', ')||'None'}</td></tr>`);
+  }
+  $('#hist').innerHTML=rows.join('');
+}
+function view(){
+  const v=['today','meds','history'].includes(location.hash.slice(1))?location.hash.slice(1):'today';
+  for(const n of ['today','meds','history'])$('#v-'+n).hidden=n!==v;
+  document.querySelectorAll('.tabs a').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+}
+function render(){
+  const now=new Date();
+  $('#r-person').setAttribute('aria-pressed',role==='person');
+  $('#r-carer').setAttribute('aria-pressed',role==='carer');
+  $('#stamp').textContent=`Sample week started ${stampLabel(S.created)}. Last updated ${stampLabel(S.updated)}.`;
+  renderPillbox(now);renderToday(now);renderMeds();renderHistory(now);
+}
+
+let simItem=null,lastFocus=null;
+function openSim(){
+  const now=new Date(),nc=unconfirmedNow(now);
+  simItem=nc[nc.length-1]||null;
+  const it=simItem||{date:dkey(now),time:'21:00',med:S.meds.find(m=>m.id==='statelix')};
+  $('#sim-clock').textContent=hm(now.toISOString());
+  $('#sim-date').textContent=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  $('#sim-head').textContent='Margaret hasn’t confirmed a dose';
+  $('#sim-body').textContent=`${it.med.name} ${it.med.dose}, scheduled ${it.date===dkey(now)?'today':'yesterday'} at ${it.time}. Not confirmed ${HH.grace} minutes after the scheduled time.`+(simItem?'':' (Example: every dose is confirmed right now.)');
+  $('#sim-take').disabled=!simItem;
+  lastFocus=document.activeElement;$('#modal').hidden=false;$('#sim-close').focus();
+}
+function closeSim(){$('#modal').hidden=true;if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+
+function findItem(b){const m=S.meds.find(x=>x.id===b.dataset.m);return m?{date:b.dataset.d,time:b.dataset.t,med:m}:null}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const it=findItem(b);if(!it)return;const act=b.dataset.act;
+  if(act==='undo'){record(it,null);toast('Undone')}
+  else{record(it,{s:act==='take'?'taken':'skipped',at:new Date().toISOString(),by:who()});toast(it.med.name+(act==='take'?' marked taken':' skipped'))}
+});
+$('#r-person').addEventListener('click',()=>{role='person';store.set('role',role);render()});
+$('#r-carer').addEventListener('click',()=>{role='carer';store.set('role',role);render()});
+$('#slot').innerHTML=SLOTS.map(s=>`<option${s===slot?' selected':''}>${s}</option>`).join('');
+$('#slot').addEventListener('change',e=>{slot=e.target.value;store.set('slot',slot);load();render();toast(slot+' loaded')});
+let armed=false;
+$('#reset').addEventListener('click',()=>{
+  if(!armed){armed=true;$('#reset').textContent='Tap again to reset '+slot;setTimeout(()=>{armed=false;$('#reset').textContent='Reset this sample week'},4000);return}
+  armed=false;$('#reset').textContent='Reset this sample week';freshWeek();save(false);render();toast(slot+' reset to a fresh sample week');
+});
+$('#preview').addEventListener('click',openSim);
+$('#sim-close').addEventListener('click',closeSim);
+$('#modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSim()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)closeSim()});
+$('#sim-call').addEventListener('click',()=>toast('Simulation: no call is made'));
+$('#sim-take').addEventListener('click',()=>{if(simItem){record(simItem,{s:'taken',at:new Date().toISOString(),by:HH.carer});toast(simItem.med.name+' marked taken')}closeSim()});
+window.addEventListener('hashchange',view);
+
+load();view();render();
+setInterval(render,30000);
+}
+</script>
+</body>
+</html>
